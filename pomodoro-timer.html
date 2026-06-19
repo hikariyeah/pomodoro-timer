@@ -2,7 +2,8 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" id="themeColor" content="#3a2230" />
 <title>番茄钟 · Pomodoro</title>
 <style>
   :root {
@@ -19,16 +20,25 @@
     --ring-bg: rgba(255,255,255,0.10);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; }
+  html, body { min-height: 100%; }
+  /* root background fills the mobile pull-down / overscroll area so it never
+     flashes white; JS keeps this in sync with the current mode's top color */
+  html {
+    background-color: #3a2230;
+    overscroll-behavior-y: none;
+    transition: background-color 0.6s ease;
+  }
   body {
     font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
     background: radial-gradient(1200px 800px at 50% -10%, #2a2440 0%, var(--bg) 55%);
     color: var(--text);
     min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 24px;
+    padding: max(24px, env(safe-area-inset-top)) 24px max(24px, env(safe-area-inset-bottom));
     transition: background 0.6s ease;
     -webkit-font-smoothing: antialiased;
   }
@@ -353,6 +363,8 @@
     long:  ['#5b8def', '#6aa6ff'],
   };
   const labels = { focus: '专注时间', short: '短休息', long: '长休息' };
+  // top color of each mode's gradient — used for the root/overscroll bg + browser chrome
+  const topColors = { focus: '#3a2230', short: '#163029', long: '#1a2440' };
 
   const STORE_KEY = 'pomodoro.v1';
 
@@ -635,6 +647,10 @@
     el.startBtn.style.background = `linear-gradient(135deg, ${c1}, ${c2})`;
     el.startBtn.style.boxShadow = `0 10px 30px ${hexA(c1, 0.35)}`;
     el.body.className = 'mode-' + state.mode;
+    // keep the root background (mobile overscroll area) and browser chrome in sync
+    document.documentElement.style.backgroundColor = topColors[state.mode];
+    const meta = document.getElementById('themeColor');
+    if (meta) meta.setAttribute('content', topColors[state.mode]);
   }
 
   function hexA(hex, a) {
