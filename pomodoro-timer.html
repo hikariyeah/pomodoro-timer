@@ -21,16 +21,30 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { min-height: 100%; }
-  /* root background fills the mobile pull-down / overscroll area so it never
-     flashes white; JS keeps this in sync with the current mode's top color */
+  /* root color fills the mobile pull-down / overscroll area; equals the gradient's
+     top edge color (see ::before, center at 50% 0%) so there is no seam.
+     JS keeps this in sync with the current mode. */
   html {
     background-color: #3a2230;
     overscroll-behavior-y: none;
     transition: background-color 0.6s ease;
   }
+  /* one continuous, full-screen fixed gradient — painted behind the status bar,
+     the content and the overscroll area alike, so nothing splits at the notch */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(1300px 1000px at 50% 0%, #2a2440 0%, var(--bg) 60%);
+    transition: background 0.6s ease;
+  }
+  body.mode-focus::before { background: radial-gradient(1300px 1000px at 50% 0%, #3a2230 0%, var(--bg) 60%); }
+  body.mode-short::before { background: radial-gradient(1300px 1000px at 50% 0%, #163029 0%, var(--bg) 60%); }
+  body.mode-long::before  { background: radial-gradient(1300px 1000px at 50% 0%, #1a2440 0%, var(--bg) 60%); }
   body {
     font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-    background: radial-gradient(1200px 800px at 50% -10%, #2a2440 0%, var(--bg) 55%);
+    background: transparent;
     color: var(--text);
     min-height: 100vh;
     min-height: 100dvh;
@@ -39,12 +53,8 @@
     justify-content: center;
     padding: 24px;
     padding: max(24px, env(safe-area-inset-top)) 24px max(24px, env(safe-area-inset-bottom));
-    transition: background 0.6s ease;
     -webkit-font-smoothing: antialiased;
   }
-  body.mode-focus { background: radial-gradient(1200px 800px at 50% -10%, #3a2230 0%, var(--bg) 55%); }
-  body.mode-short { background: radial-gradient(1200px 800px at 50% -10%, #163029 0%, var(--bg) 55%); }
-  body.mode-long  { background: radial-gradient(1200px 800px at 50% -10%, #1a2440 0%, var(--bg) 55%); }
 
   .app {
     width: 100%;
